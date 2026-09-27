@@ -32,7 +32,7 @@ export class ProductsController {
     const details = this.ProductRepository.create({
       name: product.name,
       price: product.price,
-      image: `http://10.135.74.184:3000/uploads/products/${file.filename}`,
+      image: `http://172.21.204.184:3000/uploads/products/${file.filename}`,
       review: product.review,
       rate: product.rate,
     });
@@ -40,7 +40,7 @@ export class ProductsController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(): Promise<Product[]> {
     return this.ProductRepository.find();
   }
 }
