@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Catergory } from 'src/catergory/entities/catergory.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Product {
@@ -15,4 +16,6 @@ export class Product {
   review: number;
   @Column()
   rate: number;
+  @ManyToOne(() => Catergory)
+  catergory: Catergory;
 }

@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsModule } from './products/products.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { CatergoryModule } from './catergory/catergory.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
+    CatergoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
