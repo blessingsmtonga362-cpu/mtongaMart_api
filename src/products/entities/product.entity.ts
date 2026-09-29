@@ -11,7 +11,6 @@ export class Product {
   price: number;
   @Column()
   image: string;
-
   @Column()
   review: number;
   @Column()

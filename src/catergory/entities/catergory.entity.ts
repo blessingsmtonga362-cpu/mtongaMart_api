@@ -7,6 +7,4 @@ export class Catergory {
   name: string;
   @Column()
   image: string;
-  @Column({ unique: true })
-  slug: string;
 }
