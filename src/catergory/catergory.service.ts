@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCatergoryDto } from './dto/create-catergory.dto';
-import { UpdateCatergoryDto } from './dto/update-catergory.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Catergory } from './entities/catergory.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class CatergoryService {}
+export class CatergoryService {
+  constructor(
+    @InjectRepository(Catergory)
+    private readonly categortRepository: Repository<Catergory>,
+  ) {}
+}

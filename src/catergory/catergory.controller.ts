@@ -43,8 +43,7 @@ export class CatergoryController {
   ) {
     const details = this.catergoryRepository.create({
       name: catergory.name,
-      image: `http://172.21.204.184:3000/uploads/catergory/${file.filename}`,
-      slug: catergory.slug,
+      image: `http://192.168.1.219:3000/uploads/catergory/${file.filename}`,
     });
     return this.catergoryRepository.save(details);
   }

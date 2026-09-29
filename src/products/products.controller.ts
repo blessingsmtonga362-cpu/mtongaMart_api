@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Body, Inject, Param } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
@@ -32,9 +32,10 @@ export class ProductsController {
     const details = this.ProductRepository.create({
       name: product.name,
       price: product.price,
-      image: `http://172.21.204.184:3000/uploads/products/${file.filename}`,
+      image: `http://192.168.1.219:3000/uploads/products/${file.filename}`,
       review: product.review,
       rate: product.rate,
+      catergory: product.catergory,
     });
     return this.ProductRepository.save(details);
   }
@@ -42,5 +43,13 @@ export class ProductsController {
   @Get()
   async findAll(): Promise<Product[]> {
     return this.ProductRepository.find();
+  }
+  @Get('single/:id')
+  async findInCategories(@Param('id') id: number): Promise<Product[]> {
+    return this.ProductRepository.find({
+      where: {
+        catergory: { id: id },
+      },
+    });
   }
 }
