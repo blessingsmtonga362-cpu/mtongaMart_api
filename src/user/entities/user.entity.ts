@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import { Cart } from 'src/cart/entities/cart.entity';
 
 @Entity()
-export class User {
+export class Users {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -9,5 +10,8 @@ export class User {
   email: string;
 
   @Column()
-  username: string;
+  password: string;
+
+  @OneToOne(() => Cart, (cart) => cart.user)
+  cart: Cart;
 }

@@ -8,6 +8,7 @@ import { join } from 'path';
 import { CatergoryModule } from './catergory/catergory.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     CatergoryModule,
     UserModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],
