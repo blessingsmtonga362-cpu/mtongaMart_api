@@ -23,7 +23,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class CatergoryController {
   constructor(
     @InjectRepository(Catergory)
-    private readonly catergoryRepository: Repository<Catergory>,
+    private categoryRepo: Repository<Catergory>,
+    private readonly catergoryService: CatergoryService,
   ) {}
 
   @Post('bule')
@@ -41,15 +42,11 @@ export class CatergoryController {
     @Body() catergory: Catergory,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const details = this.catergoryRepository.create({
-      name: catergory.name,
-      image: `http://192.168.1.219:3000/uploads/catergory/${file.filename}`,
-    });
-    return this.catergoryRepository.save(details);
+    return this.catergoryService.createCategory(catergory, file);
   }
 
   @Get('bule')
   async findAll(): Promise<Catergory[]> {
-    return this.catergoryRepository.find();
+    return this.categoryRepo.find();
   }
 }

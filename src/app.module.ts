@@ -6,6 +6,7 @@ import { ProductsModule } from './products/products.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CatergoryModule } from './catergory/catergory.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { CatergoryModule } from './catergory/catergory.module';
       serveRoot: '/uploads',
     }),
     CatergoryModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
