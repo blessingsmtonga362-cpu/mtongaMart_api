@@ -46,7 +46,7 @@ export class CatergoryController {
   }
 
   @Get('bule')
-  async findAll(): Promise<Catergory[]> {
-    return this.categoryRepo.find();
+  async findAll() {
+    return this.catergoryService.findAllCategories();
   }
 }
