@@ -9,4 +9,14 @@ export class CatergoryService {
     @InjectRepository(Catergory)
     private readonly categortRepository: Repository<Catergory>,
   ) {}
+  createCategory(catergory: Catergory, file: Express.Multer.File) {
+    const details = this.categortRepository.create({
+      name: catergory.name,
+      image: `http://192.168.1.219:3000/uploads/catergory/${file.filename}`,
+    });
+    return this.categortRepository.save(details);
+  }
+  findAllCategories(): Promise<Catergory[]> {
+    return this.categortRepository.find();
+  }
 }
