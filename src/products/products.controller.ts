@@ -36,7 +36,7 @@ export class ProductsController {
 
   @Get()
   async findAll() {
-    return this.productRepo.find();
+    return this.productService.kupeza();
     //  return this.productService.kupeza();
   }
   @Get('single/:id')
