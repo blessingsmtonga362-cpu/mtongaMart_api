@@ -57,9 +57,6 @@ export class CartService {
     return this.cartItemRepository.save(newCartItem);
   }
 
-  deleteCartItem(id: number) {
-    return this.cartItemRepository.delete(id);
-  }
   getCartItems(id: number) {
     return this.cartRepository.findOne({
       where: { user: { id } },
