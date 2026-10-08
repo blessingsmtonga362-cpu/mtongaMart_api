@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Cart } from './cart.entity';
 import { Product } from 'src/products/entities/product.entity';
 
@@ -6,8 +6,13 @@ import { Product } from 'src/products/entities/product.entity';
 export class CartItem {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  quantity: number;
+
   @ManyToOne(() => Cart, (cart) => cart.items)
   cart: Cart;
+
   @ManyToOne(() => Product, (product) => product.id)
   product: Product;
 }
