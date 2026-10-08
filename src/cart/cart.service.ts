@@ -60,4 +60,10 @@ export class CartService {
   deleteCartItem(id: number) {
     return this.cartItemRepository.delete(id);
   }
+  getCartItems(id: number) {
+    return this.cartRepository.findOne({
+      where: { user: { id } },
+      relations: { items: { product: true } },
+    });
+  }
 }
