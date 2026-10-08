@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCartDto } from './dto/create-cart.dto';
-import { UpdateCartDto } from './dto/update-cart.dto';
 import { CartItem } from './entities/cartitem.entity';
 
 import { Repository } from 'typeorm';
@@ -24,24 +27,25 @@ export class CartService {
   ) {}
 
   async addCart(id: number, createCartDto: CreateCartDto) {
-    let user = await this.cartRepository.findOne({ where: { user: { id } } });
-    if (!user) {
-      const newCart = this.cartRepository.create({ user: { id } });
-      await this.cartRepository.save(newCart);
-      return (user = await this.cartRepository.findOne({
-        where: { user: { id } },
-      }));
+    if (!Number.isInteger(createCartDto.quantity) || createCartDto.quantity < 1) {
+      throw new BadRequestException('Quantity must be a positive integer');
     }
     const product = await this.productRepository.findOne({
       where: { id: createCartDto.productId },
     });
 
     if (!product) {
-      throw new Error('Product not found');
+      throw new NotFoundException('Product not found');
+    }
+    let cart = await this.cartRepository.findOne({ where: { user: { id } } });
+    if (!cart) {
+      cart = await this.cartRepository.save(
+        this.cartRepository.create({ user: { id } }),
+      );
     }
     const cartItem = await this.cartItemRepository.findOne({
       where: {
-        cart: { user: { id } },
+        cart: { id: cart.id },
         product: { id: createCartDto.productId },
       },
     });
@@ -52,18 +56,41 @@ export class CartService {
     const newCartItem = this.cartItemRepository.create({
       quantity: createCartDto.quantity,
       product: product,
-      cart: user,
+      cart,
     });
     return this.cartItemRepository.save(newCartItem);
   }
 
-  deleteCartItem(id: number) {
-    return this.cartItemRepository.delete(id);
+  async updateCartItemQuantity(userId: number, itemId: number, delta: number) {
+    if (!Number.isInteger(delta) || delta === 0) {
+      throw new BadRequestException('Quantity change must be a non-zero integer');
+    }
+    const item = await this.cartItemRepository.findOne({
+      where: { id: itemId, cart: { user: { id: userId } } },
+    });
+    if (!item) throw new NotFoundException('Cart item not found');
+
+    const quantity = item.quantity + delta;
+    if (quantity <= 0) {
+      await this.cartItemRepository.remove(item);
+      return { deleted: true, itemId };
+    }
+    item.quantity = quantity;
+    return this.cartItemRepository.save(item);
   }
-  getCartItems(id: number) {
+
+  async deleteCartItem(userId: number, itemId: number) {
+    const item = await this.cartItemRepository.findOne({
+      where: { id: itemId, cart: { user: { id: userId } } },
+    });
+    if (!item) throw new NotFoundException('Cart item not found');
+    await this.cartItemRepository.remove(item);
+    return { deleted: true, itemId };
+  }
+  async getCartItems(id: number) {
     return this.cartRepository.findOne({
       where: { user: { id } },
       relations: { items: { product: true } },
-    });
+    }).then((cart) => cart ?? { id: null, user: { id }, items: [] });
   }
 }
