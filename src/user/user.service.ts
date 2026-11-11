@@ -11,8 +11,9 @@ export class UserService {
     private usersRepository: Repository<Users>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    const user = this.usersRepository.create(createUserDto);
+  create(userData: { name: string; email: string; password: string }) {
+    const user = this.usersRepository.create(userData);
+
     return this.usersRepository.save(user);
   }
 
@@ -20,7 +21,17 @@ export class UserService {
     return this.usersRepository.find();
   }
 
-  findOne(id: number) {
+  findByEmail(email: string) {
+    return this.usersRepository.findOne({ where: { email } });
+  }
+  findById(id: number) {
     return this.usersRepository.findOne({ where: { id } });
+  }
+  findByEmailWithPassword(email: string) {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.email = :email', { email })
+      .getOne();
   }
 }
