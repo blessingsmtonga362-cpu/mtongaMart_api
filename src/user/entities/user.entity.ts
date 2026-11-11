@@ -1,9 +1,17 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
 import { Cart } from 'src/cart/entities/cart.entity';
 
 @Entity()
 export class Users {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column()
@@ -12,8 +20,17 @@ export class Users {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
+
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @OneToOne(() => Cart, (cart) => cart.user)
   cart: Cart;
