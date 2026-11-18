@@ -11,6 +11,7 @@ import { CreateCartDto } from './dto/create-cart.dto';
 import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cartitem.entity';
 import { Product } from 'src/products/entities/product.entity';
+import { Users } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class CartService {
@@ -25,13 +26,30 @@ export class CartService {
     private productRepository: Repository<Product>,
   ) {}
 
-  async addCart(id: number, createCartDto: CreateCartDto) {
+  private async ensureUserExists(id: string) {
+    let user = await this.cartRepository.manager.findOne(Users, { where: { id } });
+    if (!user) {
+      user = this.cartRepository.manager.create(Users, {
+        id,
+        name: 'App User',
+        email: `user_${id.substring(0, 8)}@mtongamart.com`,
+        password: 'dummy',
+        isEmailVerified: true,
+      });
+      await this.cartRepository.manager.save(Users, user);
+    }
+    return user;
+  }
+
+  async addCart(id: string, createCartDto: CreateCartDto) {
     if (
       !Number.isInteger(createCartDto.quantity) ||
       createCartDto.quantity < 1
     ) {
       throw new BadRequestException('Quantity must be a positive integer');
     }
+
+    await this.ensureUserExists(id);
 
     const product = await this.productRepository.findOne({
       where: {
@@ -66,7 +84,7 @@ export class CartService {
       return this.cartItemRepository.save(cartItem);
     }
 
-    // 7. Otherwise create a new cart item
+    // Otherwise create a new cart item
     const newCartItem = this.cartItemRepository.create({
       quantity: createCartDto.quantity,
       product: product,
@@ -77,12 +95,14 @@ export class CartService {
   }
 
   // Increase/decrease cart item quantity
-  async updateCartItemQuantity(userId: number, itemId: number, delta: number) {
+  async updateCartItemQuantity(userId: string, itemId: number, delta: number) {
     if (!Number.isInteger(delta) || delta === 0) {
       throw new BadRequestException(
         'Quantity change must be a non-zero integer',
       );
     }
+    await this.ensureUserExists(userId);
+
     const item = await this.cartItemRepository.findOne({
       where: {
         id: itemId,
@@ -116,7 +136,9 @@ export class CartService {
   }
 
   // Delete one cart item
-  async deleteCartItem(userId: number, itemId: number) {
+  async deleteCartItem(userId: string, itemId: number, delta?: number) {
+    await this.ensureUserExists(userId);
+
     const item = await this.cartItemRepository.findOne({
       where: {
         id: itemId,
@@ -141,7 +163,9 @@ export class CartService {
   }
 
   // Get user's cart
-  async getCartItems(id: number) {
+  async getCartItems(id: string) {
+    await this.ensureUserExists(id);
+
     const cart = await this.cartRepository.findOne({
       where: {
         user: {
