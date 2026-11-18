@@ -28,7 +28,7 @@ export class RefreshTokenService {
   }
 
   private async createRefreshToken(
-    userId: number,
+    userId: string,
     familyId: string,
     repository: Repository<RefreshToken>,
   ) {
@@ -154,7 +154,7 @@ export class RefreshTokenService {
 
     return { message: 'Logged out successfully' };
   }
-  async revokeAllForUser(userId: number) {
+  async revokeAllForUser(userId: string) {
     await this.refreshRepository
       .createQueryBuilder()
       .update(RefreshToken)
