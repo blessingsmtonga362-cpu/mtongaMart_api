@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateProductDto } from './dto/create-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -10,7 +11,7 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  async create(product: Product, file: Express.Multer.File) {
+  async create(product: CreateProductDto, file: Express.Multer.File) {
     const details = this.productRepository.create({
       name: product.name,
       price: product.price,
