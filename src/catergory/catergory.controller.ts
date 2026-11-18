@@ -19,6 +19,8 @@ import { Repository } from 'typeorm';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Public } from '../auth/decorators/public.decorator';
+@Public()
 @Controller()
 export class CatergoryController {
   constructor(
@@ -39,10 +41,10 @@ export class CatergoryController {
     }),
   )
   async create(
-    @Body() catergory: Catergory,
+    @Body() createCatergoryDto: CreateCatergoryDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.catergoryService.createCategory(catergory, file);
+    return this.catergoryService.createCategory(createCatergoryDto, file);
   }
 
   @Get('bule')
