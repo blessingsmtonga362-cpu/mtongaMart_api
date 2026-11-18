@@ -16,7 +16,7 @@ export class RefreshToken {
 
   @Column()
   @Index()
-  userId: number;
+  userId: string;
 
   @Column({ type: 'uuid' })
   @Index()
