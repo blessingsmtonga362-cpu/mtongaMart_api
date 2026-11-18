@@ -12,7 +12,7 @@ import { Cart } from 'src/cart/entities/cart.entity';
 @Entity()
 export class Users {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column()
   name: string;
