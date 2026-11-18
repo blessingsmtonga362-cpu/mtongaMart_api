@@ -15,7 +15,7 @@ export class PasswordResetToken {
 
   @Column()
   @Index()
-  userId: number;
+  userId: string;
 
   @Column({ unique: true })
   tokenHash: string;
