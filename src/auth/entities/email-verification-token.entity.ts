@@ -16,7 +16,7 @@ export class EmailVerificationToken {
 
   @Column()
   @Index()
-  userId: number;
+  userId: string;
 
   @Column({ unique: true })
   tokenHash: string;
