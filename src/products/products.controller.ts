@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Body, Inject, Param } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
+import { CreateProductDto } from './dto/create-product.dto';
+import { Public } from '../auth/decorators/public.decorator';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -9,6 +11,7 @@ import { extname } from 'path';
 import { UploadedFile, UseInterceptors } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
+@Public()
 @Controller('products')
 export class ProductsController {
   constructor(
@@ -28,10 +31,10 @@ export class ProductsController {
     }),
   )
   async create(
-    @Body() product: Product,
+    @Body() createProductDto: CreateProductDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.productService.create(product, file);
+    return this.productService.create(createProductDto, file);
   }
 
   @Get()
