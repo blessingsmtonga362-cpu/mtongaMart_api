@@ -7,40 +7,46 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartDto } from './dto/create-cart.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
+@UseGuards(JwtAuthGuard)
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @Post(':id')
+  @Post()
   async addCart(
-    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() createCartDto: CreateCartDto,
   ) {
-    return this.cartService.addCart(id, createCartDto);
+    return this.cartService.addCart(user.sub, createCartDto);
   }
 
-  @Patch(':userId/items/:itemId/quantity')
+  @Patch('items/:itemId/quantity')
   async updateCartItemQuantity(
-    @Param('userId', ParseIntPipe) userId: number,
+    @CurrentUser() user: AuthenticatedUser,
     @Param('itemId', ParseIntPipe) itemId: number,
     @Body('delta') delta: number,
   ) {
-    return this.cartService.updateCartItemQuantity(userId, itemId, delta);
+    return this.cartService.updateCartItemQuantity(user.sub, itemId, delta);
   }
 
-  @Delete(':userId/items/:itemId')
+  @Delete('items/:itemId')
   async deleteCartItem(
-    @Param('userId', ParseIntPipe) userId: number,
+    @CurrentUser() user: AuthenticatedUser,
     @Param('itemId', ParseIntPipe) itemId: number,
   ) {
-    return this.cartService.deleteCartItem(userId, itemId);
+    return this.cartService.deleteCartItem(user.sub, itemId);
   }
-  @Get(':id')
-  async getCartItems(@Param('id', ParseIntPipe) id: number) {
-    return this.cartService.getCartItems(id);
+
+  @Get()
+  async getCartItems(@CurrentUser() user: AuthenticatedUser) {
+    return this.cartService.getCartItems(user.sub);
   }
 }
