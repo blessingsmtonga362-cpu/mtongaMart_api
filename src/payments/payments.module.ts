@@ -8,9 +8,14 @@ import { Payment } from './entities/payment.entity';
 import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 import { PayChanguService } from './paychangu.service';
+import { ReceiptsModule } from '../receipts/receipts.module';
 
 @Module({
-  imports: [ConfigModule, TypeOrmModule.forFeature([Payment, Order, Cart, CartItem])],
+  imports: [
+    ConfigModule,
+    TypeOrmModule.forFeature([Payment, Order, Cart, CartItem]),
+    ReceiptsModule,
+  ],
   controllers: [PaymentsController],
   providers: [PaymentsService, PayChanguService],
 })
