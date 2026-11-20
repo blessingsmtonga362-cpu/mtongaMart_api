@@ -26,6 +26,41 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Local phone development
+
+Set the PostgreSQL connection values in `.env`, then start the backend from this
+directory with `npm run start:dev`. The server listens on all network interfaces
+and defaults to port `3000`. Its public health check is `GET /` and returns
+`{"status":"ok"}`.
+
+From the mobile project directory, run Flutter for a physical phone on the same
+Wi-Fi using the backend computer's Wi-Fi IPv4 address:
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://192.168.1.219:3000
+```
+
+Replace that address if the computer receives a different Wi-Fi address. Allow
+incoming TCP traffic on the backend port in Windows Defender Firewall. The
+phone's browser should be able to open `http://<computer-wifi-ip>:3000/`.
+If Windows blocks that request, run this in an elevated PowerShell window:
+
+```powershell
+New-NetFirewallRule -DisplayName "MtongaMart local API (TCP 3000)" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 3000 -Profile Private
+```
+
+Receipt schema setup is additive and is kept separate from TypeORM migrations.
+For a local database that does not yet have the receipt table, run
+`psql -h localhost -p 5432 -U YOUR_DB_USER -d YOUR_DB_NAME -f scripts/ensure-local-receipts-schema.sql`
+once against the database configured in `.env`. Keep `DB_SYNCHRONIZE=false` for
+normal local startup.
+
+Set `APP_URL` to the customer-facing app or website origin and `API_PUBLIC_URL`
+to the public origin of this NestJS API. Verification links use the API origin;
+password-reset links and the verification confirmation page return users to the
+app origin. Use localhost values for local development and your HTTPS domains in
+the live hosting environment.
+
 ## Project setup
 
 ```bash
