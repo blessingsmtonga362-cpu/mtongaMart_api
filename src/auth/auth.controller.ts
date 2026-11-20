@@ -5,7 +5,7 @@ import { SigninDto } from './dto/signin.dto';
 import { RefreshTokenService } from './refresh-token.service';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Throttle } from '@nestjs/throttler';
-import { Public } from './decorators/public.decorator';
+import { Public } from './decorators/public-route.decorator';
 import { PasswordResetService } from './password-reset.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
