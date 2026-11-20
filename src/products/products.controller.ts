@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Inject, Param } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
-import { Public } from '../auth/decorators/public.decorator';
+import { Public } from '../auth/decorators/public-route.decorator';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -43,7 +43,7 @@ export class ProductsController {
     //  return this.productService.kupeza();
   }
   @Get('single/:id')
-  async findInCategories(@Param('id') id: number): Promise<Product[]> {
+  async findInCategories(@Param('id') id: string): Promise<Product[]> {
     return this.productService.findCategories(id);
   }
 }
