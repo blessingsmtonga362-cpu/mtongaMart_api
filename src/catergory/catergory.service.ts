@@ -13,7 +13,7 @@ export class CatergoryService {
   createCategory(catergory: CreateCatergoryDto, file: Express.Multer.File) {
     const details = this.categortRepository.create({
       name: catergory.name,
-      image: `http://192.168.1.219:3000/uploads/catergory/${file.filename}`,
+      image: `/uploads/catergory/${file.filename}`,
     });
     return this.categortRepository.save(details);
   }
