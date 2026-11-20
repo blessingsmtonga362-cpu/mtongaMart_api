@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Headers, Param, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
-import { Public } from '../auth/decorators/public.decorator';
+import { Public } from '../auth/decorators/public-route.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { InitializePaymentDto } from './dto/initialize-payment.dto';
