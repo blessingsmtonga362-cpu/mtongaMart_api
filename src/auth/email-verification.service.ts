@@ -12,6 +12,7 @@ import { Users } from '../user/entities/user.entity.js';
 import { EmailVerificationToken } from './entities/email-verification-token.entity.js';
 import { MailService } from '../mail/mail.service.js';
 import { UserService } from '../user/user.service.js';
+import { brandedEmail } from '../mail/email-template.js';
 
 @Injectable()
 export class EmailVerificationService {
@@ -40,22 +41,26 @@ export class EmailVerificationService {
       }),
     );
 
-    const appUrl = this.configService
-      .getOrThrow<string>('APP_URL')
-      .replace(/\/$/, '');
-
-    const verificationLink = `${appUrl}/auth/verify-email?token=${encodeURIComponent(token)}`;
+    // APP_URL was previously used as the API origin as well, so preserve that
+    // local setup until API_PUBLIC_URL is explicitly configured per environment.
+    const apiUrl = (
+      this.configService.get<string>('API_PUBLIC_URL') ||
+      this.configService.getOrThrow<string>('APP_URL')
+    ).replace(/\/+$/, '');
+    const verificationLink = `${apiUrl}/auth/verify-email?token=${encodeURIComponent(token)}`;
 
     await this.mailService.sendMail(
       user.email,
       'Verify your MtongaMart account',
-      `
-        <h2>Welcome to MtongaMart!</h2>
-        <p>Please click the link below to verify your email address.</p>
-        <a href="${verificationLink}">Verify my email</a>
-        <p>This link expires in 30 minutes.</p>
-        <p>If you did not create this account, ignore this email.</p>
-      `,
+      brandedEmail({
+        preview: 'Confirm your email address to finish setting up your account.',
+        title: 'Email confirmation',
+        greeting: 'Welcome to MtongaMart',
+        message: 'Please confirm your email address to finish setting up your account and sign in.',
+        buttonLabel: 'Confirm email address',
+        buttonUrl: verificationLink,
+        note: 'This link expires in 30 minutes. If you did not create a MtongaMart account, you can ignore this email.',
+      }),
     );
 
     return { message: 'Verification email sent successfully' };
