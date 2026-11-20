@@ -10,6 +10,7 @@ import { CredentialsService } from './credentials.service.js';
 import { MailService } from '../mail/mail.service.js';
 import { Users } from '../user/entities/user.entity.js';
 import { RefreshTokenService } from './refresh-token.service.js';
+import { brandedEmail } from '../mail/email-template.js';
 
 @Injectable()
 export class PasswordResetService {
@@ -60,22 +61,23 @@ export class PasswordResetService {
 
     await this.resetTokenRepository.save(resetToken);
 
-    const appUrl = this.configService.getOrThrow<string>('APP_URL');
-
-    const resetLink = `${appUrl}/reset-password?token=${token}`;
+    const appUrl = this.configService
+      .getOrThrow<string>('APP_URL')
+      .replace(/\/+$/, '');
+    const resetLink = `${appUrl}/reset-password?token=${encodeURIComponent(token)}`;
 
     await this.mailService.sendMail(
       user.email,
       'MtongaMart Password Reset',
-      `
-        <h2>Password Reset</h2>
-        <p>You requested to reset your MtongaMart password.</p>
-        <p>
-          <a href="${resetLink}">Reset Password</a>
-        </p>
-        <p>This link expires in 15 minutes.</p>
-        <p>If you did not request this, ignore this email.</p>
-      `,
+      brandedEmail({
+        preview: 'Use the secure link to reset your MtongaMart password.',
+        title: 'Account security',
+        greeting: 'Reset your password',
+        message: 'We received a request to reset the password for your MtongaMart account. Use the button below to choose a new password.',
+        buttonLabel: 'Reset password',
+        buttonUrl: resetLink,
+        note: 'This link expires in 15 minutes. If you did not request a password reset, you can ignore this email. Your password will not change.',
+      }),
     );
 
     return {
