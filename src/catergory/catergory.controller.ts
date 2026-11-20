@@ -19,7 +19,7 @@ import { Repository } from 'typeorm';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Public } from '../auth/decorators/public.decorator';
+import { Public } from '../auth/decorators/public-route.decorator';
 @Public()
 @Controller()
 export class CatergoryController {
