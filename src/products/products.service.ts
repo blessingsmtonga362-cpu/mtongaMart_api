@@ -15,7 +15,7 @@ export class ProductsService {
     const details = this.productRepository.create({
       name: product.name,
       price: product.price,
-      image: `http://192.168.1.219:3000/uploads/products/${file.filename}`,
+      image: `/uploads/products/${file.filename}`,
       review: product.review,
       rate: product.rate,
       catergory: product.catergory,
@@ -27,7 +27,7 @@ export class ProductsService {
     return this.productRepository.find();
   }
 
-  async findCategories(id: number): Promise<Product[]> {
+  async findCategories(id: string): Promise<Product[]> {
     return this.productRepository.find({
       where: { catergory: { id: id } },
     });
