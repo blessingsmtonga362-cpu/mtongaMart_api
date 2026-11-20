@@ -16,6 +16,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { ReceiptsModule } from './receipts/receipts.module';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: config.get<string>('DB_SYNCHRONIZE') === 'true',
       }),
     }),
     ProductsModule,
@@ -54,6 +55,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     MailModule,
     OrdersModule,
     PaymentsModule,
+    ReceiptsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
