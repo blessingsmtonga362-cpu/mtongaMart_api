@@ -20,12 +20,25 @@ export class MailService implements OnModuleInit {
     });
   }
 
-  async sendMail(to: string, subject: string, html: string) {
+  async sendMail(
+    to: string,
+    subject: string,
+    html: string,
+    attachments?: nodemailer.SendMailOptions['attachments'],
+  ) {
+    const fromName = this.configService.get<string>(
+      'SMTP_FROM_NAME',
+      'MtongaMart',
+    );
+    const fromAddress =
+      this.configService.get<string>('SMTP_FROM_EMAIL') ||
+      this.configService.getOrThrow<string>('SMTP_USER');
     return this.transporter.sendMail({
-      from: this.configService.getOrThrow<string>('SMTP_USER'),
+      from: { name: fromName, address: fromAddress },
       to,
       subject,
       html,
+      attachments,
     });
   }
 }
