@@ -41,6 +41,7 @@ import { ReceiptsModule } from './receipts/receipts.module';
         database: config.get<string>('DB_DATABASE'),
         autoLoadEntities: true,
         synchronize: config.get<string>('DB_SYNCHRONIZE') === 'true',
+        ssl: { rejectUnauthorized: false },
       }),
     }),
     ProductsModule,
