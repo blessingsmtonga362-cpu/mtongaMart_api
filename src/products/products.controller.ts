@@ -40,7 +40,6 @@ export class ProductsController {
   @Get()
   async findAll() {
     return this.productService.kupeza();
-    //  return this.productService.kupeza();
   }
   @Get('single/:id')
   async findInCategories(@Param('id') id: string): Promise<Product[]> {
