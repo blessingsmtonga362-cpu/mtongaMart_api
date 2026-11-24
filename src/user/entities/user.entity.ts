@@ -10,6 +10,7 @@ import {
 import { Cart } from 'src/cart/entities/cart.entity';
 
 @Entity()
+//this is the user table in our database
 export class Users {
   @PrimaryGeneratedColumn('uuid')
   id: string;
