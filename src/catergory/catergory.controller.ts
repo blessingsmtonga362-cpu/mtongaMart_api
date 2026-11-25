@@ -3,41 +3,40 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+
 import { CatergoryService } from './catergory.service';
 import { CreateCatergoryDto } from './dto/create-catergory.dto';
-import { UpdateCatergoryDto } from './dto/update-catergory.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Catergory } from './entities/catergory.entity';
-import { Inject } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from '../auth/decorators/public-route.decorator';
+
 @Public()
 @Controller()
 export class CatergoryController {
-  constructor(
-    @InjectRepository(Catergory)
-    private categoryRepo: Repository<Catergory>,
-    private readonly catergoryService: CatergoryService,
-  ) {}
+  constructor(private readonly catergoryService: CatergoryService) {}
 
   @Post('bule')
   @UseInterceptors(
     FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/catergory',
-        filename: (req, file, callback) => {
-          callback(null, Date.now() + extname(file.originalname));
-        },
-      }),
+      storage: memoryStorage(),
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.startsWith('image/')) {
+          return callback(
+            new BadRequestException('Only image files are allowed'),
+            false,
+          );
+        }
+
+        callback(null, true);
+      },
     }),
   )
   async create(
