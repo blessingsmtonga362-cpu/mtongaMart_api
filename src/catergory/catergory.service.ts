@@ -1,22 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Catergory } from './entities/catergory.entity';
 import { Repository } from 'typeorm';
 import { CreateCatergoryDto } from './dto/create-catergory.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class CatergoryService {
   constructor(
     @InjectRepository(Catergory)
     private readonly categortRepository: Repository<Catergory>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
-  createCategory(catergory: CreateCatergoryDto, file: Express.Multer.File) {
+
+  async createCategory(
+    catergory: CreateCatergoryDto,
+    file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Category image is required');
+    }
+
+    const imageUrl = await this.cloudinaryService.uploadImage(
+      file,
+      'categories',
+    );
+
     const details = this.categortRepository.create({
       name: catergory.name,
-      image: `/uploads/catergory/${file.filename}`,
+      image: imageUrl,
     });
+
     return this.categortRepository.save(details);
   }
+
   findAllCategories(): Promise<Catergory[]> {
     return this.categortRepository.find();
   }
