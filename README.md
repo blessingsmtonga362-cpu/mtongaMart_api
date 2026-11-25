@@ -61,6 +61,15 @@ password-reset links and the verification confirmation page return users to the
 app origin. Use localhost values for local development and your HTTPS domains in
 the live hosting environment.
 
+Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, and
+`SMTP_PASSWORD` in the deployment's secret/environment settings. Use port 465
+with `SMTP_SECURE=true` for implicit TLS, or port 587 with
+`SMTP_SECURE=false` for STARTTLS. Ensure the hosting provider permits outbound
+SMTP connections to that host and port. Signup now remains successful if SMTP
+is unavailable and returns `verificationEmailSent: false`; check server logs
+for the SMTP host/port and provider error, then retry the resend endpoint after
+fixing connectivity.
+
 ## Project setup
 
 ```bash
