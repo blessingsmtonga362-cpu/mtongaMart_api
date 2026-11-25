@@ -5,9 +5,13 @@ import { Product } from './entities/product.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Catergory } from 'src/catergory/entities/catergory.entity';
 import { CartItem } from 'src/cart/entities/cartitem.entity';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, Catergory, CartItem])],
+  imports: [
+    TypeOrmModule.forFeature([Product, Catergory, CartItem]),
+    CloudinaryModule,
+  ],
   controllers: [ProductsController],
   providers: [ProductsService],
 })
