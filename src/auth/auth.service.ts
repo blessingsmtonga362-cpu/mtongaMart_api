@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { CredentialsService } from './credentials.service';
@@ -12,6 +13,7 @@ import { RefreshTokenService } from './refresh-token.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     private readonly userService: UserService,
     private readonly credentialsService: CredentialsService,
@@ -39,11 +41,23 @@ export class AuthService {
       password: passwordHash,
     });
 
-    await this.emailVerificationService.sendVerificationEmail(user);
+    let verificationEmailSent = true;
+    try {
+      await this.emailVerificationService.sendVerificationEmail(user);
+    } catch (error) {
+      verificationEmailSent = false;
+      this.logger.error(
+        `Account ${user.id} was created, but verification email submission failed`,
+        error instanceof Error ? error.stack : undefined,
+      );
+    }
 
     // 4. Return safe user information
     return {
-      message: 'Account created successfully',
+      message: verificationEmailSent
+        ? 'Account created successfully'
+        : 'Account created, but the verification email could not be sent. Please try resending it later.',
+      verificationEmailSent,
       user: {
         id: user.id,
         name: user.name,
