@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { randomBytes, createHash } from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 import { PasswordResetToken } from './entities/password-reset-token.entity.js';
 import { UserService } from '../user/user.service.js';
@@ -21,6 +22,7 @@ export class PasswordResetService {
     private readonly credentialsService: CredentialsService,
     private readonly mailService: MailService,
     private readonly refreshTokenService: RefreshTokenService,
+    private readonly configService: ConfigService,
   ) {}
 
   private hashToken(token: string): string {
@@ -58,10 +60,16 @@ export class PasswordResetService {
 
     await this.resetTokenRepository.save(resetToken);
 
+    const resetPageUrl = (
+      this.configService.get<string>('API_PUBLIC_URL') ||
+      this.configService.getOrThrow<string>('APP_URL')
+    ).replace(/\/+$/, '');
+    const resetLink = `${resetPageUrl}/auth/reset-password?token=${encodeURIComponent(token)}`;
+
     await this.mailService.sendMail(
       user.email,
-      'Your MtongaMart password reset code',
-      this.passwordResetEmail(token),
+      'Reset your MtongaMart password',
+      this.passwordResetEmail(resetLink),
     );
 
     return {
@@ -69,16 +77,23 @@ export class PasswordResetService {
     };
   }
 
-  private passwordResetEmail(token: string): string {
+  private passwordResetEmail(resetLink: string): string {
+    const safeLink = resetLink.replace(/[&<>"']/g, (character) => {
+      const entities: Record<string, string> = {
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      };
+      return entities[character];
+    });
     return `<!doctype html>
 <html lang="en">
-  <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Password reset code</title></head>
-  <body style="margin:0;padding:24px;background:#f4f5f4;color:#202520;font-family:Arial,Helvetica,sans-serif">
-    <main style="max-width:480px;margin:0 auto;padding:28px;background:#fff;border-radius:8px">
-      <h1 style="margin:0 0 16px;font-size:22px">Reset your password</h1>
-      <p style="font-size:15px;line-height:1.6">Enter this code in MtongaMart to choose a new password:</p>
-      <p style="margin:24px 0;padding:16px;background:#f2f5f3;text-align:center;font-family:monospace;font-size:24px;letter-spacing:2px;word-break:break-all">${token}</p>
-      <p style="font-size:13px;line-height:1.6;color:#59625c">This code expires in 15 minutes. If you did not request a reset, you can ignore this email.</p>
+  <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reset your MtongaMart password</title></head>
+  <body style="margin:0;padding:32px 16px;background:#f4f8f5;color:#172b22;font-family:Arial,Helvetica,sans-serif">
+    <main style="max-width:480px;margin:0 auto;padding:36px 32px;background:#fff;border:1px solid #e5eee8;border-radius:18px;box-shadow:0 16px 42px rgba(26,71,48,.08)">
+      <div style="margin:0 0 28px;font-size:21px;font-weight:800;letter-spacing:-.5px;color:#173a2d">Mtonga<span style="color:#16845b">Mart</span></div>
+      <h1 style="margin:0 0 12px;font-size:25px;line-height:1.25">Reset your password</h1>
+      <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:#58685f">We received a request to change your password. Click below to choose a new one.</p>
+      <p style="margin:0 0 24px"><a href="${safeLink}" style="display:inline-block;padding:14px 22px;border-radius:10px;background:#16845b;color:#fff;text-decoration:none;font-size:15px;font-weight:700">Choose a new password</a></p>
+      <p style="margin:0;padding-top:18px;border-top:1px solid #edf1ee;font-size:13px;line-height:1.6;color:#718078">This secure link expires in 15 minutes. If you didn’t request a reset, you can ignore this email.</p>
     </main>
   </body>
 </html>`;
