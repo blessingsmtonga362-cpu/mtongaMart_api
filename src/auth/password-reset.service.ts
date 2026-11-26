@@ -2,7 +2,6 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { randomBytes, createHash } from 'crypto';
-import { ConfigService } from '@nestjs/config';
 
 import { PasswordResetToken } from './entities/password-reset-token.entity.js';
 import { UserService } from '../user/user.service.js';
@@ -10,7 +9,6 @@ import { CredentialsService } from './credentials.service.js';
 import { MailService } from '../mail/mail.service.js';
 import { Users } from '../user/entities/user.entity.js';
 import { RefreshTokenService } from './refresh-token.service.js';
-import { brandedEmail } from '../mail/email-template.js';
 
 @Injectable()
 export class PasswordResetService {
@@ -22,7 +20,6 @@ export class PasswordResetService {
     private readonly userService: UserService,
     private readonly credentialsService: CredentialsService,
     private readonly mailService: MailService,
-    private readonly configService: ConfigService,
     private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
@@ -61,28 +58,30 @@ export class PasswordResetService {
 
     await this.resetTokenRepository.save(resetToken);
 
-    const appUrl = this.configService
-      .getOrThrow<string>('APP_URL')
-      .replace(/\/+$/, '');
-    const resetLink = `${appUrl}/reset-password?token=${encodeURIComponent(token)}`;
-
     await this.mailService.sendMail(
       user.email,
-      'MtongaMart Password Reset',
-      brandedEmail({
-        preview: 'Use the secure link to reset your MtongaMart password.',
-        title: 'Account security',
-        greeting: 'Reset your password',
-        message: 'We received a request to reset the password for your MtongaMart account. Use the button below to choose a new password.',
-        buttonLabel: 'Reset password',
-        buttonUrl: resetLink,
-        note: 'This link expires in 15 minutes. If you did not request a password reset, you can ignore this email. Your password will not change.',
-      }),
+      'Your MtongaMart password reset code',
+      this.passwordResetEmail(token),
     );
 
     return {
       message: 'If an account exists, a password reset link will be sent.',
     };
+  }
+
+  private passwordResetEmail(token: string): string {
+    return `<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Password reset code</title></head>
+  <body style="margin:0;padding:24px;background:#f4f5f4;color:#202520;font-family:Arial,Helvetica,sans-serif">
+    <main style="max-width:480px;margin:0 auto;padding:28px;background:#fff;border-radius:8px">
+      <h1 style="margin:0 0 16px;font-size:22px">Reset your password</h1>
+      <p style="font-size:15px;line-height:1.6">Enter this code in MtongaMart to choose a new password:</p>
+      <p style="margin:24px 0;padding:16px;background:#f2f5f3;text-align:center;font-family:monospace;font-size:24px;letter-spacing:2px;word-break:break-all">${token}</p>
+      <p style="font-size:13px;line-height:1.6;color:#59625c">This code expires in 15 minutes. If you did not request a reset, you can ignore this email.</p>
+    </main>
+  </body>
+</html>`;
   }
 
   async resetPassword(token: string, newPassword: string) {
