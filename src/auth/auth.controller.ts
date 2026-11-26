@@ -30,11 +30,13 @@ export class AuthController {
     return this.authService.signin(signinDto);
   }
 
+  @Public()
   @Post('refresh')
   refresh(@Body() dto: RefreshTokenDto) {
     return this.refreshTokenService.rotate(dto.refreshToken);
   }
 
+  @Public()
   @Post('logout')
   logout(@Body() dto: RefreshTokenDto) {
     return this.refreshTokenService.revoke(dto.refreshToken);
