@@ -10,16 +10,6 @@ export class CreateProductDto {
   @Type(() => Number)
   price: number;
 
-  @IsNumber()
-  @Type(() => Number)
-  @IsOptional()
-  review?: number;
-
-  @IsNumber()
-  @Type(() => Number)
-  @IsOptional()
-  rate?: number;
-
   @IsOptional()
   catergory?: any;
 }
