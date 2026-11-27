@@ -5,17 +5,14 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { EmailVerificationService } from './email-verification.service.js';
 import { Public } from './decorators/public-route.decorator';
-import { escapeHtml } from '../mail/email-template.js';
 
 @Controller('auth')
 export class EmailVerificationController {
   constructor(
     private readonly emailVerificationService: EmailVerificationService,
-    private readonly config: ConfigService,
   ) {}
   @Public()
   @Get('verify-email')
@@ -37,16 +34,15 @@ export class EmailVerificationController {
 
   private resultPage(status: 'ok' | 'error'): string {
     const success = status === 'ok';
-    const appUrl = escapeHtml(this.config.getOrThrow<string>('APP_URL').replace(/\/+$/, ''));
     const heading = success ? 'Your email is verified' : 'We couldn’t verify your email';
     const message = success
       ? 'Your MtongaMart account is ready. You can now sign in and start shopping.'
       : 'This link may have expired or already been used. Request a new verification email and try again.';
     const symbol = success ? '✓' : '!';
     const accent = success ? '#16845b' : '#c56b28';
-    const action = success
-      ? `<a href="${appUrl}" style="display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 24px;border-radius:12px;background:#16845b;color:#fff;text-decoration:none;font-weight:700">Continue to MtongaMart</a>`
-      : '<p style="margin:24px 0 0;color:#66736c;font-size:14px;line-height:1.6">Go back to the app and choose <strong>Resend verification email</strong>.</p>';
+    const nextStep = success
+      ? 'You can close this page and sign in to MtongaMart.'
+      : 'Return to MtongaMart, request a new verification email, and try again.';
 
     return `<!doctype html>
 <html lang="en">
@@ -58,8 +54,8 @@ export class EmailVerificationController {
       <p style="margin:0 0 10px;color:${accent};font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase">${success ? 'Verification complete' : 'Verification unsuccessful'}</p>
       <h1 style="margin:0 0 14px;font-size:29px;line-height:1.2;letter-spacing:-.8px">${heading}</h1>
       <p style="margin:0;color:#65736b;font-size:15px;line-height:1.75">${message}</p>
-      <div style="margin-top:28px">${action}</div>
-      <p style="margin:30px 0 0;color:#9aa69f;font-size:12px">${success ? 'Welcome to MtongaMart.' : 'Your account is safe. You can request a fresh link.'}</p>
+      <p style="margin:24px 0 0;color:#65736b;font-size:14px;line-height:1.6">${nextStep}</p>
+      <p style="margin:30px 0 0;color:#9aa69f;font-size:12px">${success ? 'Welcome to MtongaMart.' : 'Your account is safe.'}</p>
     </main>
   </body>
 </html>`;
