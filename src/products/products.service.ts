@@ -24,8 +24,6 @@ export class ProductsService {
       name: product.name,
       price: product.price,
       image: imageUrl,
-      review: product.review,
-      rate: product.rate,
       catergory: product.catergory,
     });
 
