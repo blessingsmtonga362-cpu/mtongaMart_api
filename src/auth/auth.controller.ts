@@ -1,5 +1,4 @@
 import { Controller, Post, Body, Get, Query, Res } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/sign.dto';
@@ -19,7 +18,6 @@ export class AuthController {
     private readonly refreshTokenService: RefreshTokenService,
     private readonly passwordResetService: PasswordResetService,
     private readonly emailVerificationService: EmailVerificationService,
-    private readonly config: ConfigService,
   ) {}
   @Public()
   @Post('signup')
@@ -62,13 +60,6 @@ export class AuthController {
   @Get('reset-password')
   resetPasswordPage(@Query('token') token: string, @Res() response: Response) {
     const safeToken = JSON.stringify(token ?? '').replace(/</g, '\\u003c');
-    const appUrl = (this.config.get<string>('APP_URL') || '/').replace(/\/+$/, '');
-    const safeAppUrl = appUrl.replace(/[&<>"']/g, (character) => {
-      const entities: Record<string, string> = {
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-      };
-      return entities[character];
-    });
 
     return response.type('html').send(`<!doctype html>
 <html lang="en">
@@ -124,8 +115,8 @@ export class AuthController {
           });
           const data = await result.json();
           if (!result.ok) throw new Error(data.message || 'This reset link is invalid or has expired.');
-          document.getElementById('reset-content').innerHTML = '<div style="text-align:center"><div aria-hidden="true" style="width:72px;height:72px;margin:0 auto 24px;display:grid;place-items:center;border-radius:50%;background:#e8f6ed;color:#16845b;font-size:36px;font-weight:700">✓</div><p style="margin:0 0 9px;color:#16845b;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase">All set</p><h1 style="margin:0 0 12px;font-size:28px">Password updated</h1><p style="margin:0;color:#65736b;font-size:15px;line-height:1.65">Your password has been changed successfully. You can now sign in with your new password.</p><a href="${safeAppUrl}" style="display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:25px;padding:0 24px;border-radius:12px;background:#16845b;color:#fff;text-decoration:none;font-weight:700">Continue to MtongaMart</a></div>';
-          document.getElementById('footer').textContent = 'Your account is protected with your new password.';
+          document.getElementById('reset-content').innerHTML = '<div style="text-align:center"><div aria-hidden="true" style="width:72px;height:72px;margin:0 auto 24px;display:grid;place-items:center;border-radius:50%;background:#e8f6ed;color:#16845b;font-size:36px;font-weight:700">✓</div><p style="margin:0 0 9px;color:#16845b;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase">All set</p><h1 style="margin:0 0 12px;font-size:28px">Password updated</h1><p style="margin:0;color:#65736b;font-size:15px;line-height:1.65">Your password has been changed successfully. You can now sign in to MtongaMart with your new password.</p></div>';
+          document.getElementById('footer').textContent = 'You can close this page. Your account is protected with your new password.';
         } catch (error) {
           message.style.color = '#b23d35';
           message.textContent = error.message + ' Request a new reset email if needed.';
