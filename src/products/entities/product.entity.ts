@@ -18,10 +18,6 @@ export class Product {
   price: number;
   @Column()
   image: string;
-  @Column()
-  review: number;
-  @Column()
-  rate: number;
   @ManyToOne(() => Catergory)
   catergory: Catergory;
   @OneToMany(() => CartItem, (cartItem) => cartItem.product)
